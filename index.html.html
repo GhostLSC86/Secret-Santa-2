@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Secret Santa 🎄</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(#0b3d2e, #041f17);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Snow */
+    .snow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background-image: radial-gradient(white 1px, transparent 1px);
+      background-size: 36px 36px;
+      opacity: 0.35;
+      transition: background-position 0.15s linear;
+    }
+
+    .scene {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: clamp(24px, 6vw, 36px);
+      margin-bottom: 20px;
+    }
+
+    /* Tree */
+    .tree {
+      width: 0;
+      height: 0;
+      border-left: 18vw solid transparent;
+      border-right: 18vw solid transparent;
+      border-bottom: 32vw solid #1e7f43;
+      max-width: 240px;
+      max-height: 220px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .tree::before {
+      content: "";
+      position: absolute;
+      top: 6vw;
+      left: -15vw;
+      border-left: 15vw solid transparent;
+      border-right: 15vw solid transparent;
+      border-bottom: 26vw solid #249f57;
+    }
+
+    .tree::after {
+      content: "";
+      position: absolute;
+      top: 12vw;
+      left: -12vw;
+      border-left: 12vw solid transparent;
+      border-right: 12vw solid transparent;
+      border-bottom: 20vw solid #2fcf73;
+    }
+
+    /* Star */
+    .star {
+      position: absolute;
+      top: -6vw;
+      left: -3vw;
+      width: 6vw;
+      height: 6vw;
+      max-width: 32px;
+      max-height: 32px;
+      background: gold;
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      box-shadow: 0 0 20px gold;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 10px gold; }
+      to { box-shadow: 0 0 30px gold; }
+    }
+
+    /* Ornaments & lights */
+    .ornament, .light {
+      position: absolute;
+      border-radius: 50%;
+    }
+
+    .ornament {
+      width: 3vw;
+      height: 3vw;
+      max-width: 14px;
+      max-height: 14px;
+      box-shadow: 0 0 8px rgba(255,255,255,0.8);
+    }
+
+    .red { background: #e53935; }
+    .gold { background: gold; }
+    .blue { background: #4fc3f7; }
+
+    .light {
+      width: 2vw;
+      height: 2vw;
+      max-width: 8px;
+      max-height: 8px;
+      background: yellow;
+      box-shadow: 0 0 10px yellow;
+      animation: blink 1.5s infinite alternate;
+    }
+
+    @keyframes blink {
+      from { opacity: 0.3; }
+      to { opacity: 1; }
+    }
+
+    .trunk {
+      width: 8vw;
+      max-width: 40px;
+      height: 10vw;
+      max-height: 50px;
+      background: #6b3e26;
+      margin: 0 auto;
+    }
+
+    /* Present */
+    .present {
+      width: 20vw;
+      height: 20vw;
+      max-width: 90px;
+      max-height: 90px;
+      background: #c62828;
+      margin: 24px auto 0;
+      position: relative;
+      box-shadow: 0 0 15px rgba(255,255,255,0.4);
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .present::before {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 12%;
+      background: gold;
+      top: 44%;
+      left: 0;
+    }
+
+    .present::after {
+      content: "";
+      position: absolute;
+      width: 12%;
+      height: 100%;
+      background: gold;
+      left: 44%;
+      top: 0;
+    }
+
+    .lid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 30%;
+      background: #b71c1c;
+      transform-origin: left top;
+      transition: transform 0.7s ease;
+      z-index: 2;
+    }
+
+    .present.open .lid {
+      transform: rotate(-110deg);
+    }
+
+    p {
+      font-size: clamp(14px, 4vw, 16px);
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      padding: 16px;
+    }
+
+    .modal-content {
+      background: #fff;
+      color: #222;
+      padding: 20px;
+      width: 100%;
+      max-width: 420px;
+      border-radius: 14px;
+      text-align: center;
+    }
+
+    .modal-content img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-bottom: 14px;
+    }
+
+    .close {
+      margin-top: 12px;
+      font-weight: bold;
+      color: #c62828;
+    }
+  </style>
+</head>
+<body>
+  <div class="snow"></div>
+
+  <div class="scene">
+    <h1>Merry Christmas 🎄</h1>
+
+    <div class="tree">
+      <div class="star"></div>
+      <div class="ornament red" style="top:28%; left:-6%"></div>
+      <div class="ornament gold" style="top:44%; left:14%"></div>
+      <div class="ornament blue" style="top:62%; left:-18%"></div>
+      <div class="light" style="top:34%; left:-2%"></div>
+      <div class="light" style="top:50%; left:8%"></div>
+      <div class="light" style="top:70%; left:-10%"></div>
+    </div>
+
+    <div class="trunk"></div>
+
+    <div class="present" id="present" onclick="openGift()">
+      <div class="lid"></div>
+    </div>
+
+    <p>Tap the present 🎁</p>
+  </div>
+
+  <audio id="music" src="Wham! - Last Christmas (Lyrics) - 7clouds Christmas Music.mp3" preload="auto"></audio>
+
+  <div class="modal" id="giftModal">
+    <div class="modal-content">
+      <img src="32376001_7901609.jpg" alt="Your picture" />
+      <p>
+        Dear Flavi Brotato,<br><br>
+        Thank you for being a best bro. Sorry for the sloppy ahh website, tried my best. Hope to continue being your friend for a long ahh time lil brotato, love you. Also, we need to play MC bro, I am tired. Also, W Chess Player. Goated. Hope you enjoyed the gift <3
+        <br><br>
+        Merry Christmas ❤️
+      </p>
+      <div class="close" onclick="closeGift()">Close</div>
+    </div>
+  </div>
+
+  <script>
+    function moveSnow(x, y) {
+      document.querySelector('.snow').style.backgroundPosition = `${x / 8}px ${y / 6}px`;
+    }
+
+    document.addEventListener('mousemove', e => moveSnow(e.clientX, e.clientY));
+    document.addEventListener('touchmove', e => {
+      if (e.touches[0]) moveSnow(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+
+    function openGift() {
+      document.getElementById('giftModal').style.display = 'flex';
+      document.getElementById('present').classList.add('open');
+      const music = document.getElementById('music');
+      music.volume = 0.5;
+      music.play();
+    }
+
+    function closeGift() {
+      document.getElementById('giftModal').style.display = 'none';
+      document.getElementById('present').classList.remove('open');
+    }
+  </script>
+</body>
+</html>
